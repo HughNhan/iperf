@@ -61,6 +61,8 @@
 # endif
 #endif
 
+#define HN_DEBUG(s) printf("%s:%d: %s", __FUNCTION__, __LINE__, s)
+
 /* iperf_udp_recv
  *
  * receives the data for UDP
@@ -587,6 +589,7 @@ iperf_udp_connect(struct iperf_test *test)
     if (write(s, &buf, sizeof(buf)) < 0) {
         // XXX: Should this be changed to IESTREAMCONNECT?
         i_errno = IESTREAMWRITE;
+        HN_DEBUG("write failed\n");
         return -1;
     }
 
@@ -600,6 +603,7 @@ iperf_udp_connect(struct iperf_test *test)
     do {
         if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
             i_errno = IESTREAMREAD;
+            HN_DEBUG("read failed\n");
             return -1;
         }
         if (test->debug) {
@@ -610,6 +614,7 @@ iperf_udp_connect(struct iperf_test *test)
 
     if (buf != UDP_CONNECT_REPLY  && buf != LEGACY_UDP_CONNECT_REPLY) {
         i_errno = IESTREAMREAD;
+        HN_DEBUG("something else failed\n");
         return -1;
     }
 
