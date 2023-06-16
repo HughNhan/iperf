@@ -509,6 +509,7 @@ iperf_udp_connect(struct iperf_test *test)
 {
     int s, sz;
     unsigned int buf;
+    HN_DEBUG("Begin");
 #ifdef SO_RCVTIMEO
     struct timeval tv;
 #endif
