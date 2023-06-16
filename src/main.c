@@ -59,6 +59,8 @@ main(int argc, char **argv)
 {
     struct iperf_test *test;
 
+    printf("%s:%d HN version\n", __FUNCTION__, __LINE__);
+
     // XXX: Setting the process affinity requires root on most systems.
     //      Is this a feature we really need?
 #ifdef TEST_PROC_AFFINITY
