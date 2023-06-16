@@ -578,47 +578,54 @@ iperf_udp_connect(struct iperf_test *test)
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 #endif
 
-    /*
-     * Write a datagram to the UDP stream to let the server know we're here.
-     * The server learns our address by obtaining its peer's address.
-     */
-    buf = UDP_CONNECT_MSG;
-    if (test->debug) {
-        printf("Sending Connect message to Socket %d\n", s);
-    }
-    if (write(s, &buf, sizeof(buf)) < 0) {
-        // XXX: Should this be changed to IESTREAMCONNECT?
-        i_errno = IESTREAMWRITE;
-        HN_DEBUG("write failed\n");
-        return -1;
-    }
+    for (int i=0; i<5; i++){
+        /* retry the connection setup for up to 5 times */
 
-    /*
-     * Wait until the server replies back to us with the "accept" response.
-     */
-    i = 0;
-    max_len_wait_for_reply = sizeof(buf);
-    if (test->reverse) /* In reverse mode allow few packets to have the "accept" response - to handle out of order packets */
-        max_len_wait_for_reply += MAX_REVERSE_OUT_OF_ORDER_PACKETS * test->settings->blksize;
-    do {
-        if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
-            i_errno = IESTREAMREAD;
-            HN_DEBUG("read failed\n");
+        /*
+         * Write a datagram to the UDP stream to let the server know we're here.
+         * The server learns our address by obtaining its peer's address.
+         */
+        buf = 123456789;		/* this can be pretty much anything */
+        if (write(s, &buf, sizeof(buf)) < 0) {
+            // XXX: Should this be changed to IESTREAMCONNECT? 
+            i_errno = IESTREAMWRITE;
+            HN_DEBUG("HN write failed");
             return -1;
         }
-        if (test->debug) {
-            printf("Connect received for Socket %d, sz=%d, buf=%x, i=%d, max_len_wait_for_reply=%d\n", s, sz, buf, i, max_len_wait_for_reply);
+
+        int result;
+        fd_set read_set;
+        struct timeval timeout;
+
+        timeout.tv_sec = 1;
+        timeout.tv_usec = 0;
+
+        memcpy(&read_set, &test->read_set, sizeof(fd_set));
+        result = select(test->max_fd + 1, &read_set, NULL, NULL, &timeout);
+        if (result < 0 && errno != EINTR) {
+            i_errno = IESELECT;
+            HN_DEBUG("HN select failed");
+            return -1;
+        } else if (result > 0) {
+            /*
+             * Wait until the server replies back to us.
+             */
+            if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
+                i_errno = IESTREAMREAD;
+                HN_DEBUG("HN read failed");
+                return -1;
+            } else {
+                return s;
+            }
+        } else {
+            if (test->debug)
+                fprintf(stderr, "Retrying udp connection in 1s.");
+            sleep(1);
+            HN_DEBUG("HN retry");
         }
-        i += sz;
-    } while (buf != UDP_CONNECT_REPLY && buf != LEGACY_UDP_CONNECT_REPLY && i < max_len_wait_for_reply);
-
-    if (buf != UDP_CONNECT_REPLY  && buf != LEGACY_UDP_CONNECT_REPLY) {
-        i_errno = IESTREAMREAD;
-        HN_DEBUG("something else failed\n");
-        return -1;
     }
-
-    return s;
+    i_errno = IESTREAMREAD;
+    return -1;
 }
 
 
