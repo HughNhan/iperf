@@ -364,6 +364,7 @@ iperf_connect(struct iperf_test *test)
 {
     int opt;
     socklen_t len;
+    HN_DEBUG("start");
 
     if (NULL == test)
     {
@@ -381,6 +382,7 @@ iperf_connect(struct iperf_test *test)
 	test->ctrl_sck = netdial(test->settings->domain, Ptcp, test->bind_address, test->bind_dev, 0, test->server_hostname, test->server_port, test->settings->connect_timeout);
     if (test->ctrl_sck < 0) {
         i_errno = IECONNECT;
+        HN_DEBUG("could not create control channel");
         return -1;
     }
 
@@ -471,6 +473,7 @@ iperf_connect(struct iperf_test *test)
 	}
     }
 
+    HN_DEBUG("Success");
     return 0;
 }
 
@@ -522,6 +525,8 @@ iperf_run_client(struct iperf_test * test)
     int64_t t_usecs;
     int64_t timeout_us;
     int64_t rcv_timeout_us;
+
+    HN_DEBUG("Start");
 
     if (NULL == test)
     {
