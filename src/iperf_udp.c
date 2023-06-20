@@ -381,6 +381,7 @@ iperf_udp_accept(struct iperf_test *test)
     socklen_t len;
     int       sz, s;
     int	      rc;
+    HN_DEBUG("BEGIN server accepting a UDP stream");
 
     /*
      * Get the current outstanding socket.  This socket will be used to handle
@@ -470,6 +471,7 @@ iperf_udp_accept(struct iperf_test *test)
         return -1;
     }
 
+    HN_DEBUG("END server accepts this UDP stream");
     return s;
 }
 
