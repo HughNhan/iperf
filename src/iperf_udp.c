@@ -61,7 +61,6 @@
 # endif
 #endif
 
-#define HN_DEBUG(s) printf("%s:%d: %s", __FUNCTION__, __LINE__, s)
 
 /* iperf_udp_recv
  *
@@ -590,7 +589,7 @@ iperf_udp_connect(struct iperf_test *test)
         if (write(s, &buf, sizeof(buf)) < 0) {
             // XXX: Should this be changed to IESTREAMCONNECT? 
             i_errno = IESTREAMWRITE;
-            HN_DEBUG("HN write failed");
+            HN_DEBUG("write failed");
             return -1;
         }
 
@@ -605,7 +604,7 @@ iperf_udp_connect(struct iperf_test *test)
         result = select(test->max_fd + 1, &read_set, NULL, NULL, &timeout);
         if (result < 0 && errno != EINTR) {
             i_errno = IESELECT;
-            HN_DEBUG("HN select failed");
+            HN_DEBUG("select failed");
             return -1;
         } else if (result > 0) {
             /*
@@ -613,7 +612,7 @@ iperf_udp_connect(struct iperf_test *test)
              */
             if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
                 i_errno = IESTREAMREAD;
-                HN_DEBUG("HN read failed");
+                HN_DEBUG("read failed");
                 return -1;
             } else {
                 return s;
@@ -622,7 +621,7 @@ iperf_udp_connect(struct iperf_test *test)
             if (test->debug)
                 fprintf(stderr, "Retrying udp connection in 1s.");
             sleep(1);
-            HN_DEBUG("HN retry");
+            HN_DEBUG("to retry");
         }
     }
     i_errno = IESTREAMREAD;
