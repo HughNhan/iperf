@@ -77,13 +77,22 @@
 typedef uint64_t iperf_size_t;
 #endif // __IPERF_API_H
 
-static int hn_debug=1;
+#define HN_DBG
+#ifdef HN_DBG
 #define HN_DEBUG(s) \
-{\
-    if (hn_debug){\
-       printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
-    }\
-}
+  {\
+    printf("%s:%d HN - %s\n", __FUNCTION__, __LINE__, s); \
+  }
+#define HN_DEBUG_a(s,a) \
+  {\
+    printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
+  }
+#else
+#define HN_DEBUG(s) 
+#define HN_DEBUG_a(s) 
+
+#endif
+
 
 struct iperf_interval_results
 {
