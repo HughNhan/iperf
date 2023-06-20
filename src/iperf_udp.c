@@ -597,7 +597,7 @@ iperf_udp_connect(struct iperf_test *test)
         fd_set read_set;
         struct timeval timeout;
 
-        timeout.tv_sec = 1;
+        timeout.tv_sec = 5;
         timeout.tv_usec = 0;
 
         memcpy(&read_set, &test->read_set, sizeof(fd_set));
@@ -613,7 +613,8 @@ iperf_udp_connect(struct iperf_test *test)
             if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
                 i_errno = IESTREAMREAD;
                 HN_DEBUG("read failed");
-                return -1;
+                //return -1;
+                HN_DEBUG("Retry");
             } else {
                 return s;
             }
