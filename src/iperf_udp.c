@@ -579,8 +579,9 @@ iperf_udp_connect(struct iperf_test *test)
     tv.tv_usec = 0;
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 #endif
+#define HN_MAX_RETRIES  1
 
-    for (int i=0; i<5; i++){
+    for (int i=0; i<HN_MAX_RETRIES; i++){
         /* retry the connection setup for up to 5 times */
 
         /*
