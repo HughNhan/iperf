@@ -614,7 +614,7 @@ iperf_udp_connect(struct iperf_test *test)
              * Wait until the server replies back to us.
              */
             PRINT_CUR_TIME();
-            HN_DEBUG(" - read begin");
+            HN_DEBUG_a(" - read begin (after select result=arg_a)", result);
             if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
                 i_errno = IESTREAMREAD;
                 PRINT_CUR_TIME();
