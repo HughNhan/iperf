@@ -92,7 +92,7 @@ typedef uint64_t iperf_size_t;
 {\
     char buff[100]; \
     time_t now = time (0); \
-    strftime(buff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&now)); \
+    strftime(buff, 100, "%Y-%m-%d %H:%M:%S.000: ", localtime (&now)); \
     printf ("%s", buff); \
 }
 

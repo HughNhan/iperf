@@ -470,6 +470,19 @@ iperf_udp_accept(struct iperf_test *test)
         i_errno = IESTREAMWRITE;
         return -1;
     }
+#define HN_SERVER_EXTRA_REPLY
+#ifdef HN_SERVER_EXTRA_REPLY
+#define HN_SERVER_EXTRA_MSG_MAX  3
+ {
+    int i;
+    for (i=0 ; i < HN_SERVER_EXTRA_MSG_MAX; i++) {
+        if (write(s, &buf, sizeof(buf)) < 0) {
+            i_errno = IESTREAMWRITE;
+            return -1;
+        }
+    } 
+ }
+#endif  // HN_SERVER_EXTRA_REPLY
 
     HN_DEBUG("END server accepts this UDP stream");
     return s;
@@ -579,10 +592,10 @@ iperf_udp_connect(struct iperf_test *test)
     tv.tv_usec = 0;
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 #endif
-#define HN_MAX_RETRIES  1
+#define HN_MAX_RETRIES  3
 
     for (int i=0; i<HN_MAX_RETRIES; i++){
-        /* retry the connection setup for up to 5 times */
+        /* retry the connection setup for up to a number of time times */
 
         /*
          * Write a datagram to the UDP stream to let the server know we're here.
@@ -620,7 +633,7 @@ iperf_udp_connect(struct iperf_test *test)
                 PRINT_CUR_TIME();
                 HN_DEBUG_a(" - read failed errno", errno);
                 //return -1;
-                HN_DEBUG(" - Retry");
+                break;
             } else {
                 PRINT_CUR_TIME();
                 HN_DEBUG(" - read OK");
@@ -629,8 +642,9 @@ iperf_udp_connect(struct iperf_test *test)
         } else {
             if (test->debug)
                 fprintf(stderr, "Retrying udp connection in 1s.");
-                PRINT_CUR_TIME();
-                HN_DEBUG(" - select failed, retry");
+             PRINT_CUR_TIME();
+             HN_DEBUG(" - select failed, retry");
+             sleep(1);
         }
     }
 #define HN_IGNORE_READ_FAILURE
