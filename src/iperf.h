@@ -87,9 +87,19 @@ typedef uint64_t iperf_size_t;
   {\
     printf("%s:%d HN - %s, arg_a=%d\n", __FUNCTION__, __LINE__, s, a); \
   }
+
+#define PRINT_CUR_TIME() \
+{\
+    char buff[100]; \
+    time_t now = time (0); \
+    strftime(buff, 100, "%Y-%m-%d %H:%M:%S.000", localtime (&now)); \
+    printf ("%s", buff); \
+}
+
 #else
 #define HN_DEBUG(s) 
 #define HN_DEBUG_a(s) 
+#define PRINT_CUR_TIME() 
 
 #endif
 

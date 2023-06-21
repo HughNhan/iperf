@@ -612,12 +612,14 @@ iperf_udp_connect(struct iperf_test *test)
             /*
              * Wait until the server replies back to us.
              */
+            PRINT_CUR_TIME();
             HN_DEBUG("post select delay 10usec");
             usleep(10);  // HN wait a little before read
             if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
                 i_errno = IESTREAMREAD;
                 HN_DEBUG_a("read failed errno", errno);
                 //return -1;
+                PRINT_CUR_TIME();
                 HN_DEBUG("Retry");
             } else {
                 return s;
