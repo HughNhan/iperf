@@ -613,26 +613,35 @@ iperf_udp_connect(struct iperf_test *test)
              * Wait until the server replies back to us.
              */
             PRINT_CUR_TIME();
-            HN_DEBUG("post select delay 10usec");
-            usleep(10);  // HN wait a little before read
+            HN_DEBUG(" - read begin");
             if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
                 i_errno = IESTREAMREAD;
-                HN_DEBUG_a("read failed errno", errno);
-                //return -1;
                 PRINT_CUR_TIME();
-                HN_DEBUG("Retry");
+                HN_DEBUG_a(" - read failed errno", errno);
+                //return -1;
+                HN_DEBUG(" - Retry");
             } else {
+                PRINT_CUR_TIME();
+                HN_DEBUG(" - read OK");
                 return s;
             }
         } else {
             if (test->debug)
                 fprintf(stderr, "Retrying udp connection in 1s.");
-            sleep(1);
-            HN_DEBUG("to retry");
+                PRINT_CUR_TIME();
+                HN_DEBUG(" - select failed, retry");
         }
     }
+#define HN_IGNORE_READ_FAILURE
+#ifndef HN_IGNORE_READ_FAILURE
     i_errno = IESTREAMREAD;
     return -1;
+#else
+    PRINT_CUR_TIME();
+    HN_DEBUG(" - HN ignore read error");
+    return s;
+#endif
+
 }
 
 
