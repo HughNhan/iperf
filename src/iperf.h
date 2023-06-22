@@ -99,7 +99,7 @@ typedef uint64_t iperf_size_t;
     gettimeofday(&curTime, NULL); \
     size_t endpos = strftime(buf, sizeof buf, "%Y-%m-%d %H:%M:%S", localtime(&curTime.tv_sec)); \
     snprintf(buf + endpos, sizeof buf - endpos, ":%03d", (int) (curTime.tv_usec / 1000));\
-    printf ("%s", buf); \
+    printf ("%s ", buf); \
 }
 
 #else
