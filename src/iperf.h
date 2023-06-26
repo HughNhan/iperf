@@ -77,7 +77,7 @@
 typedef uint64_t iperf_size_t;
 #endif // __IPERF_API_H
 
-#define HN_DBG
+//#define HN_DBG
 #ifdef HN_DBG
 #include <stdio.h>
 #include <time.h>
@@ -104,7 +104,7 @@ typedef uint64_t iperf_size_t;
 
 #else
 #define HN_DEBUG(s) 
-#define HN_DEBUG_a(s) 
+#define HN_DEBUG_a(s,a) 
 #define PRINT_CUR_TIME() 
 
 #endif
