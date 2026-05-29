@@ -777,6 +777,10 @@ iperf_udp_connect(struct iperf_test *test)
                 }
                 continue;
             }
+            if (retries >= UDP_CONNECT_MAX_RETRIES)
+                fprintf(stderr, "UDP connect reply: all %d retries exhausted "
+                        "(errno=%d: %s)\n",
+                        UDP_CONNECT_MAX_RETRIES, errno, strerror(errno));
             i_errno = IESTREAMREAD;
             return -1;
         }
