@@ -1194,6 +1194,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
         {"mptcp", no_argument, NULL, 'm'},
 #endif
         {"gsro", no_argument, NULL, OPT_GSRO},
+        {"start-delay", required_argument, NULL, OPT_START_DELAY},
         {"debug", optional_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
         {NULL, 0, NULL, 0}
@@ -1812,6 +1813,13 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
 		gsro_flag = 1;
 		test->settings->gso = 1;
 		test->settings->gro = 1;
+                break;
+            case OPT_START_DELAY:
+                test->start_delay = atoi(optarg);
+                if (test->start_delay < 0) {
+                    i_errno = IEBADDELAY;
+                    return -1;
+                }
                 break;
 	    case 'h':
 		usage_long(stdout);
@@ -3761,6 +3769,7 @@ iperf_reset_test(struct iperf_test *test)
     test->reverse = 0;
     test->bidirectional = 0;
     test->no_delay = 0;
+    test->start_delay = 0;
 
     FD_ZERO(&test->read_set);
     FD_ZERO(&test->write_set);

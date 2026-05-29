@@ -352,6 +352,12 @@ iperf_handle_message_client(struct iperf_test *test)
         case TEST_START:
             if (iperf_init_test(test) < 0)
                 return -1;
+            if (test->start_delay > 0) {
+                if (test->debug)
+                    fprintf(stderr, "start-delay: waiting %d second(s) before data phase\n",
+                            test->start_delay);
+                sleep(test->start_delay);
+            }
             if (create_client_timers(test) < 0)
                 return -1;
             if (create_client_omit_timer(test) < 0)

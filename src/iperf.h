@@ -354,6 +354,7 @@ struct iperf_test
     int       daemon;                           /* -D option */
     int       one_off;                          /* -1 option */
     int       no_delay;                         /* -N option */
+    int       start_delay;                      /* --start-delay option, seconds */
     int       reverse;                          /* -R option */
     int       bidirectional;                    /* --bidirectional */
     int	      verbose;                          /* -V option - verbose mode */

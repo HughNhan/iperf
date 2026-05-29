@@ -729,8 +729,8 @@ iperf_udp_connect(struct iperf_test *test)
     iperf_common_sockopts(test, s);
 
 #ifdef SO_RCVTIMEO
-    /* 30 sec timeout for a case when there is a network problem. */
-    tv.tv_sec = 30;
+    /* Per-attempt timeout; client will retry sending UDP_CONNECT_MSG. */
+    tv.tv_sec = 1;
     tv.tv_usec = 0;
     setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, (struct timeval *)&tv, sizeof(struct timeval));
 #endif
@@ -749,15 +749,38 @@ iperf_udp_connect(struct iperf_test *test)
         return -1;
     }
 
+#define UDP_CONNECT_MAX_RETRIES 30
+
     /*
      * Wait until the server replies back to us with the "accept" response.
+     * Retry on timeout: under high session load the server may be briefly
+     * busy and the reply (or our connect msg) may be dropped.
      */
     i = 0;
+    int retries = 0;
     max_len_wait_for_reply = sizeof(buf);
     if (test->reverse) /* In reverse mode allow few packets to have the "accept" response - to handle out of order packets */
         max_len_wait_for_reply += MAX_REVERSE_OUT_OF_ORDER_PACKETS * test->settings->blksize;
     do {
-        if ((sz = recv(s, &buf, sizeof(buf), 0)) < 0) {
+        sz = recv(s, &buf, sizeof(buf), 0);
+        if (sz < 0) {
+            if ((errno == EAGAIN || errno == EWOULDBLOCK) &&
+                retries < UDP_CONNECT_MAX_RETRIES) {
+                ++retries;
+                if (test->debug)
+                    printf("UDP connect reply timeout, retrying (%d/%d)\n",
+                           retries, UDP_CONNECT_MAX_RETRIES);
+                buf = UDP_CONNECT_MSG;
+                if (write(s, &buf, sizeof(buf)) < 0) {
+                    i_errno = IESTREAMWRITE;
+                    return -1;
+                }
+                continue;
+            }
+            if (retries >= UDP_CONNECT_MAX_RETRIES)
+                fprintf(stderr, "UDP connect reply: all %d retries exhausted "
+                        "(errno=%d: %s)\n",
+                        UDP_CONNECT_MAX_RETRIES, errno, strerror(errno));
             i_errno = IESTREAMREAD;
             return -1;
         }
