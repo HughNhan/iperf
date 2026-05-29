@@ -1817,7 +1817,7 @@ iperf_parse_arguments(struct iperf_test *test, int argc, char **argv)
             case OPT_START_DELAY:
                 test->start_delay = atoi(optarg);
                 if (test->start_delay < 0) {
-                    i_errno = IEBADDELAY;
+                    i_errno = IEBADPORT;
                     return -1;
                 }
                 break;
